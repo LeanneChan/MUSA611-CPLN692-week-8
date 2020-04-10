@@ -44,6 +44,7 @@ which allow us to rapidly prototype API requests.
 I suggest Postman, which is available for free in the chrome app store. It provides
 a cleaner, easier way to test ajax calls than simply using the console.
 
+use postman to communicate with servers?? request made to API 
 
 Task 1: Use Mapbox's 'Search' API to 'geocode' information from your input
 
@@ -67,6 +68,7 @@ Questions you should ask yourself:
   - What can I do with the output?
   - Can I get a lat/lng from the output?
 
+  TrY to use the something in Jquery?? 
 
 Task 2: Use Mapbox's 'Navigation' API to generate a route based on your origin and destination
 
@@ -76,6 +78,13 @@ The docs: https://docs.mapbox.com/api/navigation/#directions
 Again, the task is somewhat underspecified. Let's start with the simplest routing
 option available. Once you're getting a valid (as best you can tell) response
 from the server, move to the next task.
+
+record,record,record
+in form lng,lat 
+go up to postman, replace {coords} with the 'record, record, record'
+
+playgroun shows you what is possible, but postman shows how you can use the API
+
 
 
 Task 3: Decode your route response

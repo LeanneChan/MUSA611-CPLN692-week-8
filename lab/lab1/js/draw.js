@@ -69,7 +69,7 @@ in the sidebar.
 Change the variable myRectangle to myRectangles and set it to equal an empty
 array. Change the rest of your code to push new layers into the array.
 
-Task 6: Connect sidebar and map
+Task 6: Connect sidebar and map 
 
 The HTML in the sidebar and the Leaflet layers on the map and in our Javascript
 variable can be linked by using the Leaflet ID. Modify the application so that
@@ -80,6 +80,8 @@ clicking on a shape in the sidebar will do one of the following:
 sidebar and the myRectanges array)
 - Anything else you can think of!
 
+OH- must add the clikcability when creating the new shape in map.on!! not outside. 
+
 Task 7 (Stretch Goal): Reverse Task 6
 
 Modify the application so moving your mouse over a rectangle on the map will
@@ -89,17 +91,18 @@ Moving your mouse outside of the circle should remove the highlighting.
 ===================== */
 
 // Global Variables
-var myRectangle;
+var myShapes=[];
 
 // Initialize Leaflet Draw
 var drawControl = new L.Control.Draw({
   draw: {
     polyline: false,
     polygon: false,
-    circle: false,
+    circle: true,
     marker: false,
     circlemarker: false,
     rectangle: true
+
   }
 });
 
@@ -108,6 +111,51 @@ map.addControl(drawControl);
 // Event which is run every time Leaflet draw creates a new layer
 map.on('draw:created', function (e) {
     var type = e.layerType; // The type of shape
-    var layer = e.layer; // The Leaflet layer for the shape
-    var id = L.stamp(layer); // The unique Leaflet ID for the layer
+    myShapes.push(e.layer);; // The Leaflet layer for the shape
+    var id = L.stamp(e.layer); // The unique Leaflet ID for the layer
+    //console.log(id);
+    //console.log(myShapes);
+    _.each(myShapes, function(x){map.addLayer(x);});
+
+    // add id to sidebar 
+    // call div using #, call class using . 
+    $('#shapes').append($.parseHTML(`<div class="shape" data-leaflet-id=${id}><h1>Current ID: ${id}</h1></div>`));
+
+    // add functionality for clicking side bar, part 6
+    $('.shape').click(function () {
+        var clicked_id = $(this).attr('data-leaflet-id');
+        //alert('clicked');
+        console.log(clicked_id);
+        // remove old shapes 
+        _.each(myShapes, function(x){map.removeLayer(x)});
+        // filter out to new shapes 
+        myShapes = _.filter(myShapes, function(x){return x._leaflet_id != clicked_id})
+        // plot new shapes 
+        _.each(myShapes, function(x){map.addLayer(x);});
+
+    });
+
+    /* alternative to part 6. Simply adding a click functionality to this div
+    $(`div[data-leaflet-id |=${id}]`).click(function(){
+    })*/
+
+    // part 7: 
+    e.layer.on("mouseover", function(e){
+        var hovered = e.target._leaflet_id;
+        // div selector
+        $(`div[data-leaflet-id |=${hovered}]`).css("background-color", "yellow");
+        // |= is a pipe... it is a selector. 
+    });
+    // have to do a mouseout as well, so that it doesnt stay highlighted
+    e.layer.on("mouseout", function(e){
+        var hovered = e.target._leaflet_id;
+        // div selector
+        $(`div[data-leaflet-id |=${hovered}]`).css("background-color", "white");
+        // |= is a pipe... it is a selector. 
+    });
+
+
+
 });
+
+
