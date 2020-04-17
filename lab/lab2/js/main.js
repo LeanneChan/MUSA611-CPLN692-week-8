@@ -85,7 +85,13 @@ go up to postman, replace {coords} with the 'record, record, record'
 
 playgroun shows you what is possible, but postman shows how you can use the API
 
-
+*/ // code to get the coords of the input location 
+var geocode_this = 'London School of Economics'; 
+var your_mapbox_token='pk.eyJ1IjoibGVhbm5lY2hhbiIsImEiOiJjazh1bGt2eWowY2k0M2ZtaDY3c2RiZnhyIn0.O9fZnzCKgPFTRAuDyWhRew';
+var html = `https://api.mapbox.com/geocoding/v5/mapbox.places/${geocode_this}.json?access_token=${your_mapbox_token}`;
+var output = $.ajax(html);
+var coords_first =  output.responseJSON["features"][0].center ;
+/*
 
 Task 3: Decode your route response
 
