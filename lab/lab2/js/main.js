@@ -70,6 +70,11 @@ Questions you should ask yourself:
 
   TrY to use the something in Jquery?? 
 
+  input will be a user specified destination 
+  need to save that as a variable
+  input the variblae into the link 
+
+
 Task 2: Use Mapbox's 'Navigation' API to generate a route based on your origin and destination
 
 The docs: https://docs.mapbox.com/api/navigation/#directions
@@ -83,15 +88,7 @@ record,record,record
 in form lng,lat 
 go up to postman, replace {coords} with the 'record, record, record'
 
-playgroun shows you what is possible, but postman shows how you can use the API
-
-*/ // code to get the coords of the input location 
-var geocode_this = 'London School of Economics'; 
-var your_mapbox_token='pk.eyJ1IjoibGVhbm5lY2hhbiIsImEiOiJjazh1bGt2eWowY2k0M2ZtaDY3c2RiZnhyIn0.O9fZnzCKgPFTRAuDyWhRew';
-var html = `https://api.mapbox.com/geocoding/v5/mapbox.places/${geocode_this}.json?access_token=${your_mapbox_token}`;
-var output = $.ajax(html);
-var coords_first =  output.responseJSON["features"][0].center ;
-/*
+playground shows you what is possible, but postman shows how you can use the API
 
 Task 3: Decode your route response
 
@@ -145,6 +142,25 @@ var goToOrigin = _.once(function(lat, lng) {
   map.flyTo([lat, lng], 14);
 });
 
+// global variables for coords
+var origin;
+var destination; 
+var end_marker;
+var route_feature;
+var the_route;
+var your_mapbox_token='pk.eyJ1IjoibGVhbm5lY2hhbiIsImEiOiJjazh1bGt2eWowY2k0M2ZtaDY3c2RiZnhyIn0.O9fZnzCKgPFTRAuDyWhRew';
+
+// create functions
+var geolocate = function(location){
+  var req= $.ajax(`https://api.mapbox.com/geocoding/v5/mapbox.places/${location}.json?access_token=${your_mapbox_token}`);
+  return req;
+}
+
+var getRoute = function(start, end){
+  var req= $.ajax(`https://api.mapbox.com/directions/v5/mapbox/driving/${start[0]},${start[1]};${end[0]},${end[1]}?access_token=${your_mapbox_token}&geometries=geojson`);
+  return req
+}
+
 
 /* Given a lat and a long, we should create a marker, store it
  *  somewhere, and add it to the map
@@ -161,13 +177,12 @@ $(document).ready(function() {
   /* This 'if' check allows us to safely ask for the user's current position */
   if ("geolocation" in navigator) {
     navigator.geolocation.getCurrentPosition(function(position) {
+      origin = [position.coords.longitude, position.coords.latitude];
       updatePosition(position.coords.latitude, position.coords.longitude, position.timestamp);
     });
   } else {
     alert("Unable to access geolocation API!");
   }
-
-
   /* Every time a key is lifted while typing in the #dest input, disable
    * the #calculate button if no text is in the input
    */
@@ -178,12 +193,48 @@ $(document).ready(function() {
       $('#calculate').attr('disabled', false);
     }
   });
-
   // click handler for the "calculate" button (probably you want to do something with this)
+  // NEED TO EXCECUTE IN THE DONE FUNCTION!!! 
   $("#calculate").click(function(e) {
     var dest = $('#dest').val();
-    console.log(dest);
+    if (end_marker != undefined) {
+              map.removeLayer(end_marker);
+    };
+    if (route_feature != undefined) {
+              map.removeLayer(route_feature);
+    };
+
+    // first get the coordinates of the destination 
+    geolocate(dest).done(function(response){
+      // return first coordinate 
+      destination = response.features[0].center;
+      console.log(destination);
+      // next, get the route to the destination 
+      getRoute(origin, destination).done(function(x){
+        the_route=x;
+
+        // returns a partial geojson(?), it cant be plotted directly. must extract arrays of coords 
+        var route_coords = x.routes[0].geometry.coordinates;
+        var distance =(x.routes[0].distance).toFixed(2); //meters
+        var duration = (x.routes[0].duration / 60).toFixed(2); //sec
+        // $('#information').append($.parseHTML(`<div class="dist"><h3>Distance to Drive: ${distance} Meters</h3></div>
+        //   <div class="dura"><h3>Duration of Drive: ${duration} minutes</h3></div>`))
+        $('#distance').text(`Distance: ${distance} meters`);
+        $('#duration').text(`Duration: ${duration} minutes`);
+        // now use turf.js to create a feature to be plotted. THIS IS A GEOJSON!
+        // NOTE! THERE IS NO NEED TO TRANSFORM THE ARRAY INTO A STRING! linestring takes in 2D array and not a string.
+        linestring = turf.lineString(route_coords, {name: 'Driving Route'});
+        // add the marker and geoJSON to map
+        end_marker = L.marker([destination[1], destination[0]]).addTo(map).bindPopup('Destination');
+        route_feature=L.geoJSON(linestring).addTo(map);
+        // change zoom on map 
+        // need to swap around the lat and lngs
+        for (var i = 0; i < route_coords.length; i++) {route_coords[i] = [route_coords[i][1], route_coords[i][0]]};
+        map.fitBounds(route_coords);
+
+      });
+    });
+
   });
 
 });
-

@@ -19,11 +19,13 @@
     <div id="map" class="map"></div>
     <!-- Sidebar -->
     <div class="sidebar">
-      <h1>Generating Routes</h1>
+      <h1>Generating Routes (Driving)</h1>
       <h2 class="h3">From <span style="color:blue">here</span> to <span style="color:red">there</span></h2>
       <label for="dest">Enter a destination</label>
       <input id="dest" type="text">
       <button id="calculate" disabled>Calculate Route</button>
+      <h2 id="distance"></h1>
+      <h2 id="duration"></h2>
     </div>
     <!-- Javascript Imports -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -31,6 +33,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/leaflet.js" integrity="sha256-CNm+7c26DTTCGRQkM9vp7aP85kHFMqs9MhPEuytF+fQ=" crossorigin="anonymous"></script>
     <script src='https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.js'></script>
     <script src="https://cdn.jsdelivr.net/npm/@mapbox/polyline@1.1.0/src/polyline.min.js"></script>
+    <script src='https://unpkg.com/@turf/turf/turf.min.js'></script>
     <script src="js/setup.js"></script>
     <script src="js/main.js"></script>
   </body>
